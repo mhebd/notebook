@@ -52,10 +52,29 @@ class _HomePageState extends State<HomePage> {
   // Bottom add note floatingActionButton
   Widget _addNoteButton() {
     return FloatingActionButton(
-      onPressed: () {},
+      onPressed: _addNoteModal,
       backgroundColor: Colors.blueAccent,
       clipBehavior: Clip.none,
       child: const Icon(Icons.add, color: Colors.white),
+    );
+  }
+
+  // Add note modal
+  void _addNoteModal() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return const AlertDialog(
+          title: Text(
+            'New Note',
+            style: TextStyle(
+              fontSize: 16,
+            ),
+          ),
+          clipBehavior: Clip.none,
+          content: TextField(),
+        );
+      },
     );
   }
 }
