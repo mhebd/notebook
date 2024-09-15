@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/adapters.dart';
+import 'package:notebook/models/note.dart';
+import 'package:intl/intl.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -9,6 +12,8 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   _HomePageState();
+
+  late Box _notes;
 
   @override
   Widget build(BuildContext context) {
@@ -28,24 +33,75 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
       body: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: _notesListView(),
+        // padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: _fetchAndShowNotes(),
       ),
       floatingActionButton: _addNoteButton(),
     );
   }
 
+  // Fetch all note from hive box
+  Widget _fetchAndShowNotes() {
+    return FutureBuilder(
+        future: Hive.openBox('notes'),
+        builder: (BuildContext context, AsyncSnapshot snapShot) {
+          if (snapShot.hasData) {
+            _notes = snapShot.data;
+            return _notesListView();
+          } else {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+        });
+  }
+
   // Show note list view
   Widget _notesListView() {
-    return ListView(
-      children: [
-        ListTile(
-          onTap: () {},
-          title: const Text('Buy some cloth.'),
-          subtitle: Text(DateTime.now().toString()),
-          trailing: const Icon(Icons.check_box_outline_blank_rounded),
-        )
-      ],
+    List notes = _notes.values.toList();
+    return ListView.builder(
+      itemCount: notes.length,
+      itemBuilder: (BuildContext context, int index) {
+        Note note = Note.fromMap(notes[index]);
+        return GestureDetector(
+          onDoubleTap: () {
+            note.argent = !note.argent;
+            _notes.putAt(index, note.toMap());
+            setState(() {});
+          },
+          child: ListTile(
+            onTap: () {
+              note.done = !note.done;
+              _notes.putAt(index, note.toMap());
+              setState(() {});
+            },
+            onLongPress: () {
+              _notes.deleteAt(index);
+              setState(() {});
+            },
+            tileColor: note.argent ? Colors.lightGreen : null,
+            title: Text(
+              note.content,
+              style: TextStyle(
+                decoration: note.done ? TextDecoration.lineThrough : null,
+                color: note.argent ? Colors.white : null,
+                fontWeight: FontWeight.w500,
+                letterSpacing: 1,
+              ),
+            ),
+            subtitle: Text(
+              DateFormat('MMMM d, yyyy').format(note.date),
+              style: TextStyle(color: note.argent ? Colors.white70 : null),
+            ),
+            trailing: Icon(
+              note.done
+                  ? Icons.check_box_outlined
+                  : Icons.check_box_outline_blank_rounded,
+              color: note.argent ? Colors.white : null,
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -64,15 +120,28 @@ class _HomePageState extends State<HomePage> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return const AlertDialog(
-          title: Text(
+        return AlertDialog(
+          title: const Text(
             'New Note',
             style: TextStyle(
               fontSize: 16,
             ),
           ),
           clipBehavior: Clip.none,
-          content: TextField(),
+          content: TextField(
+            onSubmitted: (value) {
+              var newNote = Note(
+                content: value,
+                date: DateTime.now(),
+                done: false,
+                argent: false,
+              );
+              _notes.add(
+                newNote.toMap(),
+              );
+              setState(() {});
+            },
+          ),
         );
       },
     );
