@@ -79,25 +79,32 @@ class _HomePageState extends State<HomePage> {
               _notes.deleteAt(index);
               setState(() {});
             },
-            tileColor: note.argent ? Colors.lightGreen : null,
+            tileColor: note.done
+                ? Colors.lightGreen
+                : note.argent
+                    ? Colors.redAccent
+                    : null,
             title: Text(
               note.content,
               style: TextStyle(
                 decoration: note.done ? TextDecoration.lineThrough : null,
-                color: note.argent ? Colors.white : null,
+                color: note.argent || note.done ? Colors.white : null,
                 fontWeight: FontWeight.w500,
-                letterSpacing: 1,
               ),
             ),
             subtitle: Text(
               DateFormat('MMMM d, yyyy').format(note.date),
-              style: TextStyle(color: note.argent ? Colors.white70 : null),
+              style: TextStyle(
+                color: note.argent || note.done ? Colors.white70 : null,
+                fontSize: 12,
+                fontStyle: FontStyle.italic,
+              ),
             ),
             trailing: Icon(
               note.done
                   ? Icons.check_box_outlined
                   : Icons.check_box_outline_blank_rounded,
-              color: note.argent ? Colors.white : null,
+              color: note.argent || note.done ? Colors.white : null,
             ),
           ),
         );
@@ -111,7 +118,11 @@ class _HomePageState extends State<HomePage> {
       onPressed: _addNoteModal,
       backgroundColor: Colors.blueAccent,
       clipBehavior: Clip.none,
-      child: const Icon(Icons.add, color: Colors.white),
+      child: const Icon(
+        Icons.add,
+        color: Colors.white,
+        size: 30,
+      ),
     );
   }
 
@@ -129,6 +140,8 @@ class _HomePageState extends State<HomePage> {
           ),
           clipBehavior: Clip.none,
           content: TextField(
+            autofocus: true,
+            autocorrect: false,
             onSubmitted: (value) {
               var newNote = Note(
                 content: value,
@@ -140,6 +153,7 @@ class _HomePageState extends State<HomePage> {
                 newNote.toMap(),
               );
               setState(() {});
+              Navigator.pop(context);
             },
           ),
         );
