@@ -58,7 +58,7 @@ class _HomePageState extends State<HomePage> {
 
   // Show note list view
   Widget _notesListView() {
-    List notes = _notes.values.toList().reversed.toList();
+    List notes = _notes.values.toList();
     return ListView.builder(
       itemCount: notes.length,
       itemBuilder: (BuildContext context, int index) {
