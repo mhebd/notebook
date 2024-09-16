@@ -58,7 +58,7 @@ class _HomePageState extends State<HomePage> {
 
   // Show note list view
   Widget _notesListView() {
-    List notes = _notes.values.toList();
+    List notes = _notes.values.toList().reversed.toList();
     return ListView.builder(
       itemCount: notes.length,
       itemBuilder: (BuildContext context, int index) {
@@ -75,10 +75,7 @@ class _HomePageState extends State<HomePage> {
               _notes.putAt(index, note.toMap());
               setState(() {});
             },
-            onLongPress: () {
-              _notes.deleteAt(index);
-              setState(() {});
-            },
+            onLongPress: () => _deleteNoteModal(index),
             tileColor: note.done
                 ? Colors.lightGreen
                 : note.argent
@@ -126,6 +123,45 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  // Delete note modal
+  void _deleteNoteModal(int index) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text(
+            'Are you sure?',
+            style: TextStyle(
+              fontSize: 16,
+            ),
+          ),
+          content: const Text(
+              'Be aware that this action will permanently delete the note'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+              ),
+              onPressed: () {
+                _notes.delete(index);
+                setState(() {});
+                Navigator.pop(context);
+              },
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   // Add note modal
   void _addNoteModal() {
     showDialog(
@@ -142,6 +178,8 @@ class _HomePageState extends State<HomePage> {
           content: TextField(
             autofocus: true,
             autocorrect: false,
+            decoration:
+                const InputDecoration(hintText: 'What is on your mind?'),
             onSubmitted: (value) {
               var newNote = Note(
                 content: value,
