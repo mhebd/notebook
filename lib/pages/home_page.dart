@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/adapters.dart';
+import 'package:hive/hive.dart';
 import 'package:notebook/models/note.dart';
 import 'package:intl/intl.dart';
 
@@ -59,10 +60,12 @@ class _HomePageState extends State<HomePage> {
   // Show note list view
   Widget _notesListView() {
     List notes = _notes.values.toList();
+    List keys = _notes.keys.toList();
     return ListView.builder(
       itemCount: notes.length,
       itemBuilder: (BuildContext context, int index) {
         Note note = Note.fromMap(notes[index]);
+        int key = keys[index];
         return GestureDetector(
           onDoubleTap: () {
             note.argent = !note.argent;
@@ -75,7 +78,7 @@ class _HomePageState extends State<HomePage> {
               _notes.putAt(index, note.toMap());
               setState(() {});
             },
-            onLongPress: () => _deleteNoteModal(index),
+            onLongPress: () => _deleteNoteModal(key),
             tileColor: note.done
                 ? Colors.lightGreen
                 : note.argent
