@@ -60,12 +60,10 @@ class _HomePageState extends State<HomePage> {
   // Show note list view
   Widget _notesListView() {
     List notes = _notes.values.toList();
-    List keys = _notes.keys.toList();
     return ListView.builder(
       itemCount: notes.length,
       itemBuilder: (BuildContext context, int index) {
         Note note = Note.fromMap(notes[index]);
-        int key = keys[index];
         return GestureDetector(
           onDoubleTap: () {
             note.argent = !note.argent;
@@ -78,7 +76,7 @@ class _HomePageState extends State<HomePage> {
               _notes.putAt(index, note.toMap());
               setState(() {});
             },
-            onLongPress: () => _deleteNoteModal(key),
+            onLongPress: () => _deleteNoteModal(index),
             tileColor: note.done
                 ? Colors.lightGreen
                 : note.argent
@@ -153,7 +151,7 @@ class _HomePageState extends State<HomePage> {
                 foregroundColor: Colors.white,
               ),
               onPressed: () {
-                _notes.delete(index);
+                _notes.deleteAt(index);
                 setState(() {});
                 Navigator.pop(context);
               },
